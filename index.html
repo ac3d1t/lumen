@@ -3,14 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>new tab</title>
+    <title>New Tab</title>
     <style>
         :root {
             --bg: #e0e0e0;
             --text: #444;
             --light-shadow: #ffffff;
             --dark-shadow: #bebebe;
-            --accent: #0078d4;
+            --accent: #6b46c1; /* Grok-ish Purple */
         }
 
         [data-theme="dark"] {
@@ -28,16 +28,14 @@
 
         .app-shell { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; }
 
-        /* MAIN CARD - Matches the refined 'lumen' screenshot style */
         .lumen-card {
             width: 90%; max-width: 520px; background: var(--bg); padding: 50px 40px; border-radius: 50px; text-align: center;
             box-shadow: 20px 20px 60px var(--dark-shadow), -20px -20px 60px var(--light-shadow);
-            position: relative;
         }
 
         .logo { font-size: 85px; font-weight: 800; letter-spacing: -7px; margin: 0 0 35px 0; user-select: none; }
 
-        /* CARVED SEARCH BAR - As seen in IMG_1643.jpeg */
+        /* THE CARVED SEARCH BAR WITH AI INTEGRATION */
         .search-container {
             position: relative; padding: 5px; border-radius: 25px; background: var(--bg);
             box-shadow: inset 8px 8px 16px var(--dark-shadow), inset -8px -8px 16px var(--light-shadow);
@@ -45,8 +43,32 @@
         }
 
         .search-input {
-            width: 100%; border: none; background: transparent; padding: 15px 25px;
+            width: 100%; border: none; background: transparent; padding: 15px 20px;
             font-size: 18px; color: var(--text); outline: none;
+        }
+
+        .action-group { display: flex; align-items: center; padding-right: 15px; gap: 10px; }
+        
+        .search-icon-btn { 
+            background: transparent; border: none; cursor: pointer; color: var(--text); opacity: 0.4; display: flex; 
+        }
+
+        /* THE AI BUTTON */
+        .ai-spark-btn {
+            background: var(--bg); border: none; border-radius: 12px; cursor: pointer;
+            padding: 8px; display: flex; align-items: center; justify-content: center;
+            box-shadow: 3px 3px 6px var(--dark-shadow), -3px -3px 6px var(--light-shadow);
+            color: var(--accent);
+        }
+        .ai-spark-btn:hover { transform: scale(1.1); opacity: 1; }
+        .ai-spark-btn:active { box-shadow: inset 2px 2px 4px var(--dark-shadow); }
+
+        /* AI CHAT OVERLAY */
+        #aiPanel { width: 450px; height: 500px; display: flex; flex-direction: column; }
+        #aiResponse { 
+            flex: 1; overflow-y: auto; padding: 15px; margin-bottom: 10px; border-radius: 15px; 
+            background: var(--bg); box-shadow: inset 4px 4px 8px var(--dark-shadow);
+            font-size: 14px; line-height: 1.5; text-align: left; white-space: pre-wrap;
         }
 
         /* TILES ROW */
@@ -58,33 +80,19 @@
             cursor: pointer;
         }
         .tile img { width: 35px; height: 35px; object-fit: contain; }
-        .tile:active { box-shadow: inset 5px 5px 10px var(--dark-shadow), inset -5px -5px 10px var(--light-shadow); transform: scale(0.96); }
 
-        /* SLIDE-UP PANELS */
+        /* PANELS */
         .panel {
             position: fixed; bottom: -100%; left: 50%; transform: translateX(-50%);
             width: 400px; background: var(--bg); padding: 30px; border-radius: 40px 40px 0 0;
             box-shadow: 0 -15px 50px rgba(0,0,0,0.3); z-index: 100;
         }
         .panel.active { bottom: 0; }
-        
-        /* ABOUT & HUB SECTION STYLE */
-        .about-content { text-align: left; }
-        .version-tag { font-size: 12px; opacity: 0.6; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; }
-        .hub-link { 
-            display: flex; align-items: center; gap: 12px; padding: 15px; border-radius: 15px; 
-            background: var(--bg); text-decoration: none; color: var(--text); margin-top: 10px;
-            box-shadow: 4px 4px 8px var(--dark-shadow), -4px -4px 8px var(--light-shadow);
-        }
-        .hub-link:hover { transform: translateX(5px); }
-
         .btn { width: 100%; padding: 15px; border: none; border-radius: 15px; background: var(--bg); box-shadow: 6px 6px 12px var(--dark-shadow); cursor: pointer; color: var(--text); margin-top: 12px; font-weight: 700; }
+        .panel input { width: 100%; margin: 10px 0; padding: 12px; border: none; border-radius: 12px; background: var(--bg); box-shadow: inset 3px 3px 6px var(--dark-shadow); color: var(--text); outline: none; }
 
-        .corner { position: fixed; bottom: 30px; left: 30px; right: 30px; display: flex; justify-content: space-between; pointer-events: none; }
-        .corner-group { display: flex; gap: 15px; pointer-events: auto; }
-        
+        .corner { position: fixed; bottom: 30px; left: 30px; right: 30px; display: flex; justify-content: space-between; }
         .icon-btn { width: 55px; height: 55px; border-radius: 50%; border: none; background: var(--bg); box-shadow: 6px 6px 12px var(--dark-shadow), -6px -6px 12px var(--light-shadow); cursor: pointer; color: var(--text); display: flex; align-items: center; justify-content: center; }
-
         svg { width: 24px; height: 24px; fill: currentColor; }
     </style>
 </head>
@@ -94,54 +102,55 @@
         <div class="lumen-card glass">
             <h1 class="logo">lumen</h1>
             <div class="search-container">
-                <input type="text" id="searchInput" class="search-input" placeholder="Search the web..." autofocus>
+                <input type="text" id="searchInput" class="search-input" placeholder="Ask Grok or search..." autofocus>
+                <div class="action-group">
+                    <button class="ai-spark-btn" onclick="askGrok()" title="Ask Grok AI">
+                        <svg viewBox="0 0 24 24"><path d="M12 2L14.5 9.5L22 12L14.5 14.5L12 22L9.5 14.5L2 12L9.5 9.5L12 2Z"/></svg>
+                    </button>
+                    <button class="search-icon-btn" onclick="executeSearch()">
+                        <svg viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27A6.471 6.471 0 0 0 16 9.5 6.5 6.5 0 1 0 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg>
+                    </button>
+                </div>
             </div>
         </div>
         <div class="tile-row" id="tileRow"></div>
     </div>
 
-    <div id="aboutPanel" class="panel">
-        <div class="about-content">
-            <span class="version-tag">Version 1.0.0</span>
-            <h2 style="margin: 5px 0 20px 0">Project Hub</h2>
-            
-            <a href="https://github.com/ac3d1t" target="_blank" class="hub-link">
-                <svg viewBox="0 0 24 24"><path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.041-1.416-4.041-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/></svg>
-                <span>ac3d1t on GitHub</span>
-            </a>
-
-            <a href="https://github.com/ac3d1t/fenn" target="_blank" class="hub-link">
-                <svg viewBox="0 0 24 24"><path d="M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 1.99 2H18c1.1 0 2-.9 2-2V8l-6-6zm2 16H8v-2h8v2zm0-4H8v-2h8v2zm-3-5V3.5L18.5 9H13z"/></svg>
-                <span>Lumen Source Code</span>
-            </a>
-        </div>
-        <button class="btn" onclick="closePanels()" style="margin-top: 30px;">Close Hub</button>
+    <div id="aiPanel" class="panel">
+        <h2 style="margin:0 0 10px 0">Grok AI</h2>
+        <div id="aiResponse">Waiting for prompt...</div>
+        <button class="btn" onclick="closePanels()">Close Chat</button>
     </div>
 
     <div id="settingsPanel" class="panel">
-        <h2 style="margin:0 0 10px 0">Settings</h2>
-        <input type="text" id="bgInput" placeholder="Wallpaper Image URL">
-        <button class="btn" onclick="applyBg()">Set Wallpaper</button>
+        <h2 style="margin:0">Settings</h2>
+        <input type="password" id="apiKeyInput" placeholder="Grok API Key">
+        <input type="text" id="bgInput" placeholder="Wallpaper URL">
+        <button class="btn" onclick="saveSettings()">Save Configuration</button>
         <button class="btn" onclick="openPanel('aboutPanel')">Project Hub</button>
-        <button class="btn" onclick="resetApp()" style="color:#ff4f4f">Factory Reset</button>
         <button class="btn" onclick="closePanels()">Close</button>
     </div>
 
+    <div id="aboutPanel" class="panel">
+        <span style="font-size:12px; opacity:0.5">V1.0.0</span>
+        <h2>Project Hub</h2>
+        <button class="btn" onclick="window.open('https://github.com/ac3d1t')">GitHub Profile</button>
+        <button class="btn" onclick="closePanels()">Back</button>
+    </div>
+
     <div id="addPanel" class="panel">
-        <h2 style="margin:0 0 10px 0">New Tile</h2>
+        <h2>New Tile</h2>
         <input type="text" id="tileName" placeholder="Name">
-        <input type="text" id="tileUrl" placeholder="URL (https://...)">
+        <input type="text" id="tileUrl" placeholder="URL">
         <button class="btn" onclick="addTile()">Save</button>
-        <button class="btn" onclick="openPanel('settingsPanel')">Back</button>
+        <button class="btn" onclick="closePanels()">Cancel</button>
     </div>
 
     <div class="corner">
-        <div class="corner-group">
-            <button class="icon-btn" onclick="openPanel('aboutPanel')" title="About Lumen">
-                <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/></svg>
-            </button>
-        </div>
-        <div class="corner-group">
+        <button class="icon-btn" onclick="openPanel('aboutPanel')">
+            <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/></svg>
+        </button>
+        <div style="display:flex; gap:15px;">
             <button class="icon-btn" onclick="openPanel('settingsPanel')">
                 <svg viewBox="0 0 24 24"><path d="M19.14 12.94c.04-.3.06-.61.06-.94 0-.32-.02-.64-.07-.94l2.03-1.58c.18-.14.23-.41.12-.61l-1.92-3.32c-.12-.22-.37-.29-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54c-.04-.24-.24-.41-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.05.3-.09.63-.09.94s.02.64.07.94l-2.03 1.58c-.18.14-.23.41-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z"/></svg>
             </button>
@@ -154,69 +163,83 @@
     <script>
         const input = document.getElementById('searchInput');
         const row = document.getElementById('tileRow');
+        const aiBox = document.getElementById('aiResponse');
 
-        let store = JSON.parse(localStorage.getItem('lumen_hub_v1')) || {
-            theme: 'dark',
-            bg: '',
-            links: [
-                {n:'GitHub', u:'https://github.com'}, 
-                {n:'YouTube', u:'https://youtube.com'}, 
-                {n:'Google', u:'https://google.com'}
-            ]
+        let store = JSON.parse(localStorage.getItem('lumen_v1_ai')) || {
+            theme: 'dark', bg: '', apiKey: '',
+            links: [{n:'GitHub', u:'https://github.com'}, {n:'YouTube', u:'https://youtube.com'}]
         };
 
         function render() {
             document.body.setAttribute('data-theme', store.theme);
-            if(store.bg) {
-                document.body.style.backgroundImage = `url('${store.bg}')`;
-                document.body.classList.add('has-img');
-            } else {
-                document.body.style.backgroundImage = '';
-                document.body.classList.remove('has-img');
-            }
-
+            if(store.bg) { document.body.style.backgroundImage = `url('${store.bg}')`; document.body.classList.add('has-img'); }
             row.innerHTML = '';
             store.links.forEach((link, i) => {
                 const tile = document.createElement('div');
                 tile.className = 'tile glass';
-                const icon = `https://www.google.com/s2/favicons?sz=64&domain=${new URL(link.u).hostname}`;
-                tile.innerHTML = `<img src="${icon}" alt="${link.n}">`;
+                tile.innerHTML = `<img src="https://www.google.com/s2/favicons?sz=64&domain=${new URL(link.u).hostname}">`;
                 tile.onclick = () => window.location.href = link.u;
                 tile.oncontextmenu = (e) => { e.preventDefault(); store.links.splice(i,1); save(); };
                 row.appendChild(tile);
             });
-
             const add = document.createElement('div');
-            add.className = 'tile glass';
-            add.innerHTML = '<svg viewBox="0 0 24 24"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg>';
+            add.className = 'tile glass'; add.innerHTML = '+';
             add.onclick = () => openPanel('addPanel');
             row.appendChild(add);
         }
 
-        function executeSearch() {
+        async function askGrok() {
             const query = input.value.trim();
-            if(query) {
-                if(query.includes('.') && !query.includes(' ')) {
-                    window.location.href = query.startsWith('http') ? query : 'https://' + query;
-                } else {
-                    window.location.href = `https://www.google.com/search?q=${encodeURIComponent(query)}`;
-                }
+            if(!query) return alert("Type something for Grok first!");
+            if(!store.apiKey) return alert("Add your Grok API Key in Settings first!");
+
+            openPanel('aiPanel');
+            aiBox.innerText = "Grok is thinking...";
+
+            try {
+                const response = await fetch("https://api.x.ai/v1/chat/completions", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "Authorization": `Bearer ${store.apiKey}`
+                    },
+                    body: JSON.stringify({
+                        model: "grok-beta", // or your specific version
+                        messages: [{ role: "user", content: query }],
+                        stream: false
+                    })
+                });
+
+                const data = await response.json();
+                aiBox.innerText = data.choices[0].message.content;
+            } catch (err) {
+                aiBox.innerText = "Error: Could not connect to Grok. Check your API key.";
             }
         }
 
+        function executeSearch() {
+            const q = input.value.trim();
+            if(q) window.location.href = `https://www.google.com/search?q=${encodeURIComponent(q)}`;
+        }
+
         input.onkeypress = (e) => { if(e.key === 'Enter') executeSearch(); };
-        function save() { localStorage.setItem('lumen_hub_v1', JSON.stringify(store)); render(); }
-        function applyBg() { store.bg = document.getElementById('bgInput').value; save(); closePanels(); }
+        function save() { localStorage.setItem('lumen_v1_ai', JSON.stringify(store)); render(); }
+        function saveSettings() {
+            store.apiKey = document.getElementById('apiKeyInput').value;
+            store.bg = document.getElementById('bgInput').value;
+            save(); closePanels();
+        }
         function addTile() {
             const n = document.getElementById('tileName').value;
             const u = document.getElementById('tileUrl').value;
             if(n && u) { store.links.push({n, u}); save(); closePanels(); }
         }
         function toggleTheme() { store.theme = store.theme === 'light' ? 'dark' : 'light'; save(); }
-        function resetApp() { if(confirm('Wipe all data?')) { localStorage.clear(); location.reload(); } }
         function openPanel(id) { closePanels(); document.getElementById(id).classList.add('active'); }
         function closePanels() { document.querySelectorAll('.panel').forEach(p => p.classList.remove('active')); }
 
+        // Initial load of key into input field
+        document.getElementById('apiKeyInput').value = store.apiKey;
         render();
     </script>
 </body>
